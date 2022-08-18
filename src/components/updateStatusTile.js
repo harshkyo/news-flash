@@ -1,7 +1,7 @@
-function StatusTile() {
+function StatusTile({resultCount}) {
   return (
     <div id="update-status">
-      <span>Auto refresh in 29 seconds</span>
+      <span>{resultCount}</span>
     </div>
   );
 }

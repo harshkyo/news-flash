@@ -2,7 +2,7 @@
   display: flex;
   text-align: center;
   justify-content: center;
-  position:sticky;
+  position: sticky;
   top: 0;
   z-index: 1000;
   border: 2px solid rgb(0, 0, 0);
@@ -30,6 +30,12 @@
   outline: 0;
 }
 
+#clearbox {
+  position: absolute;
+  right: 10%;
+  padding: 9px;
+}
+
 #searchbtn {
   background-color: rgb(211, 210, 210);
   width: 10%;
@@ -44,8 +50,7 @@
   background-color: rgb(174, 174, 174);
 }
 
-@media only screen and (min-width: 768px)
-and (max-width: 1024px) {
+@media only screen and (min-width: 768px) and (max-width: 1024px) {
   #search {
     margin: 20px 5%;
   }
@@ -60,6 +65,9 @@ and (max-width: 1024px) {
 
   #searchfield {
     width: 80%;
+  }
+  #clearbox {
+    right: 20%;
   }
 
   #searchbtn {

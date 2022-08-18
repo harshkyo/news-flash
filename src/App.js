@@ -1,29 +1,29 @@
 import newspapericon from "./images/newspaper-icon.svg";
 import Searchbar from "./components/searchbar";
-import StatusTile from "./components/updateStatusTile";
 import CardContainer from "./components/cardContainer";
 import "./App.css";
 import React from "react";
+import { useEffect, useState } from "react";
 import { Link, Route, Routes, useSearchParams } from "react-router-dom";
 
 function App() {
-  const [containerHaveCards, setContainerHaveCards] = React.useState(false);
-  const [query, setQuery] = React.useState("");
-  const [scrollVisibility, setScrollVisibility] = React.useState("hidden");
+  const [containerHaveCards, setContainerHaveCards] = useState(false);
+  const [query, setQuery] = useState("");
+  // const [resultCount, setResultCount] = useState(0);
+  const [scrollVisibility, setScrollVisibility] = useState("hidden");
 
+  //This function handles visibility of go to top button.
   const handleScroll = () => {
     const position = window.pageYOffset;
-    // console.log(position);
     if (position > 500) {
       setScrollVisibility("visible");
-    }
-    else {
+    } else {
       setScrollVisibility("hidden");
     }
-    // const bottom = window.scroll
   };
 
-  React.useEffect(() => {
+  //This hook handles the event listener for handleScroll function
+  useEffect(() => {
     window.addEventListener("scroll", handleScroll);
 
     return () => {
@@ -31,8 +31,9 @@ function App() {
     };
   }, []);
 
-  React.useEffect(() => {
-    if(containerHaveCards === true) containerUp();
+  //This hook moves search bar up if cards are loaded in container
+  useEffect(() => {
+    if (containerHaveCards === true) containerUp();
   }, [containerHaveCards]);
 
   var setSearchQuery = (queryData) => {
@@ -41,6 +42,7 @@ function App() {
 
   var setCardCount = (cardCount) => {
     setContainerHaveCards(cardCount === 0 ? false : true);
+    // setResultCount(cardCount);
   };
 
   var containerUp = () => {
@@ -54,18 +56,29 @@ function App() {
 
   return (
     <div className="App">
-      <button id="goTOTop" style={{visibility:scrollVisibility,transition:"visibility 0ms ease-in"}} onClick={() => {window.scrollTo(0,0)}}>TOP</button>
+      <button
+        id="goTOTop"
+        style={{
+          visibility: scrollVisibility,
+          transition: "visibility 0ms ease-in",
+        }}
+        onClick={() => {
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }}
+      >
+        TOP
+      </button>
       <header id="title">
         <img src={newspapericon} alt="News flash icon" />
         <h1>News Flash</h1>
       </header>
       <div id="container">
-        <StatusTile />
         <Searchbar
           // containerUp={containerUp}
           containerDown={containerDown}
           containerHaveCards={containerHaveCards}
           setSearchQuery={setSearchQuery}
+          // resultCount={resultCount}
         />
         <CardContainer query={query} setCardCount={setCardCount} />
       </div>

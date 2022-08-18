@@ -1,20 +1,32 @@
 import React from "react";
+import { useEffect, useState } from "react";
 import searchicon from "./../images/icons8-search.svg";
+import closeicon from "./../images/icons8-close.svg";
 import "./searchbar.css";
 
 function Searchbar({
-  // containerUp,
   containerDown,
   containerHaveCards,
   setSearchQuery,
+  // resultCount,
 }) {
-  // const inputRef = React.useRef(null);
-  const [query, setQuery] = React.useState('');
-  const [buttonStatus, setButtonStatus] = React.useState('');
-  React.useEffect(() => {
-    document.getElementById("searchbtn");
-  },[containerHaveCards]);
+  const [query, setQuery] = useState('');
+  const [savedQuery, setSavedQuery] = useState('');
+  const [closeVisibility, setCloseVisibility] = useState("none");
+  useEffect(() => {
+    if(query === '') {
+      setCloseVisibility("none");
+    }
+    else {
+      setCloseVisibility("block");
+    }
+  },[query]);
+
+  useEffect(() => {
+    if(containerHaveCards === false) containerDown();},[containerHaveCards])
+  
   return (
+    // <div>
     <div id="search">
       <input
         type="text"
@@ -30,22 +42,38 @@ function Searchbar({
             document.getElementById("searchbtn").click();
           }
         }}
-        // onFocus={() => {
-        //   if (containerHaveCards === true) containerUp();
-        // }}
+        onFocus={() => {
+          if(query != '') {
+            setCloseVisibility("block");
+            // if (containerHaveCards === false) containerDown();
+          }
+        }}
         onBlur={() => {
           if (containerHaveCards === false) containerDown();
         }}
       />
+      <a id="clearbox" onClick={() => {
+        setQuery('');
+        document.getElementById('searchfield').focus();
+      }}
+      style={{
+        display: closeVisibility,
+      }}><img src={closeicon} /></a>
       <button
         id="searchbtn"
         onClick={() => {
-          setSearchQuery(query);
+          setQuery(query.trim());
+          setSearchQuery(query.trim());
+          setSavedQuery(query.trim());
+          document.getElementById("searchfield").blur();
+          // setCloseVisibility("none");
         }}
       >
         <img src={searchicon} alt="search button" />
       </button>
     </div>
+    // {/* <div style={{textAlign: "center",}}>{containerHaveCards === false && savedQuery != "" ? "No Result Found" : ""}</div> */}
+    // {/* </div> */}
   );
 }
 
