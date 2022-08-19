@@ -8,23 +8,29 @@ function Searchbar({
   containerDown,
   containerHaveCards,
   setSearchQuery,
+  setUseSearchParam,
+  useSearchParam,
   // resultCount,
 }) {
-  const [query, setQuery] = useState('');
-  const [savedQuery, setSavedQuery] = useState('');
+  const [query, setQuery] = useState("");
+  // const [savedQuery, setSavedQuery] = useState("");
   const [closeVisibility, setCloseVisibility] = useState("none");
   useEffect(() => {
-    if(query === '') {
+    if (query === "") {
       setCloseVisibility("none");
-    }
-    else {
+    } else {
       setCloseVisibility("block");
     }
-  },[query]);
+  }, [query]);
 
   useEffect(() => {
-    if(containerHaveCards === false) containerDown();},[containerHaveCards])
-  
+    if (containerHaveCards === false) containerDown();
+  }, [containerHaveCards]);
+
+  function URLify(string) {
+    return string.trim().replace(/\s/g, '%20');
+  }
+
   return (
     // <div>
     <div id="search">
@@ -33,17 +39,18 @@ function Searchbar({
         name="search"
         id="searchfield"
         spellCheck="false"
-        value={query}
+        value={query || useSearchParam.get("q")}
         onChange={(e) => {
           setQuery(e.target.value);
+          setUseSearchParam({ q: URLify(e.target.value) });
         }}
         onKeyDown={(e) => {
-          if(e.key === 'Enter') {
+          if (e.key === "Enter") {
             document.getElementById("searchbtn").click();
           }
         }}
         onFocus={() => {
-          if(query != '') {
+          if (query != "") {
             setCloseVisibility("block");
             // if (containerHaveCards === false) containerDown();
           }
@@ -52,19 +59,26 @@ function Searchbar({
           if (containerHaveCards === false) containerDown();
         }}
       />
-      <a id="clearbox" onClick={() => {
-        setQuery('');
-        document.getElementById('searchfield').focus();
-      }}
-      style={{
-        display: closeVisibility,
-      }}><img src={closeicon} /></a>
+      <a
+        id="clearbox"
+        onClick={() => {
+          setQuery("");
+          setUseSearchParam({q: ""});
+          document.getElementById("searchfield").focus();
+        }}
+        style={{
+          display: closeVisibility,
+        }}
+      >
+        <img src={closeicon} />
+      </a>
       <button
         id="searchbtn"
         onClick={() => {
           setQuery(query.trim());
           setSearchQuery(query.trim());
-          setSavedQuery(query.trim());
+          // setSavedQuery(query.trim());
+          setUseSearchParam({ q: URLify(query.trim()) });
           document.getElementById("searchfield").blur();
           // setCloseVisibility("none");
         }}

@@ -4,11 +4,12 @@ import CardContainer from "./components/cardContainer";
 import "./App.css";
 import React from "react";
 import { useEffect, useState } from "react";
-import { Link, Route, Routes, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 
 function App() {
   const [containerHaveCards, setContainerHaveCards] = useState(false);
-  const [query, setQuery] = useState("");
+  const [useSearchParam, setUseSearchParam] = useSearchParams();
+  const [query, setQuery] = useState(useSearchParam.get('q') || "");
   // const [resultCount, setResultCount] = useState(0);
   const [scrollVisibility, setScrollVisibility] = useState("hidden");
 
@@ -33,6 +34,7 @@ function App() {
 
   //This hook moves search bar up if cards are loaded in container
   useEffect(() => {
+    console.log(containerHaveCards);
     if (containerHaveCards === true) containerUp();
   }, [containerHaveCards]);
 
@@ -74,10 +76,13 @@ function App() {
       </header>
       <div id="container">
         <Searchbar
-          // containerUp={containerUp}
+          containerUp={containerUp}
           containerDown={containerDown}
           containerHaveCards={containerHaveCards}
           setSearchQuery={setSearchQuery}
+          setUseSearchParam={setUseSearchParam}
+          useSearchParam={useSearchParam}
+          // useSearchParam={useSearchParam}
           // resultCount={resultCount}
         />
         <CardContainer query={query} setCardCount={setCardCount} />
