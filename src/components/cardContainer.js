@@ -21,7 +21,7 @@ function CardContainer({ query, setCardCount }) {
       // console.log("clicked");
       fetchResult(false);
     }
-    if (query != queryData) {
+    if (query != queryData && query != "") {
       fetchResult(true);
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
