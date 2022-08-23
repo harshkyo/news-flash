@@ -5,7 +5,8 @@
   border-radius: 5px;
   border-style: solid;
   border-width: 0px;
-  height: 200px;
+  min-height: 200px;
+  max-height: fit-content;
   box-shadow: 0 4px 8px 0 rgba(201, 201, 201, 0.2), 0 6px 20px 0 rgba(154, 154, 154, 0.19);
   background-color: rgb(239, 239, 239);
 }
@@ -17,6 +18,7 @@
 .cardImage {
   position: relative;
   height: 200px;
+  /* max-height: fit-content; */
   width: 30%;
   border-radius: 5px;
   border-style: solid;

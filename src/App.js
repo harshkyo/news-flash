@@ -10,7 +10,6 @@ function App() {
   const [containerHaveCards, setContainerHaveCards] = useState(false);
   const [useSearchParam, setUseSearchParam] = useSearchParams();
   const [query, setQuery] = useState(useSearchParam.get('q') || "");
-  // const [resultCount, setResultCount] = useState(0);
   const [scrollVisibility, setScrollVisibility] = useState("hidden");
 
   //This function handles visibility of go to top button.
@@ -34,7 +33,7 @@ function App() {
 
   //This hook moves search bar up if cards are loaded in container
   useEffect(() => {
-    console.log(containerHaveCards);
+    // console.log(containerHaveCards);
     if (containerHaveCards === true) containerUp();
   }, [containerHaveCards]);
 
@@ -44,7 +43,6 @@ function App() {
 
   var setCardCount = (cardCount) => {
     setContainerHaveCards(cardCount === 0 ? false : true);
-    // setResultCount(cardCount);
   };
 
   var containerUp = () => {

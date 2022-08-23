@@ -2,182 +2,211 @@ import Card from "./card";
 import "./cardContainer.css";
 import React from "react";
 import { useEffect, useState } from "react";
-import jsonObject from "../dummydata.json";
+import jsonObject from "../dummydata.json"; //when api limit reaches this dummy data is taken insted
 import axios from "axios";
 
 function CardContainer({ query, setCardCount }) {
+  //loader
+  const [loader, setLoader] = useState(false);
+
+  //observer
+  const [observerTarget, setObserverTarget] = useState(false);
+
+  const [queryData, setQueryData] = useState(query);
   const [cardData, setCardData] = useState([]);
   const [pageNumber, setPageNumber] = useState(1);
+  const [count, setCount] = useState(0);
   const [firstData, setFirstData] = useState("");
-  const [queryData, setQueryData] = useState(query);
+  const [totalPages, setTotalPages] = useState(0);
+  const [nothingFound, setNothingFound] = useState(false);
+
+  //load more content button states
   const [newContentVisibility, setNewContentVisibility] = useState("none");
   const [buttonClicked, setButtonClicked] = useState(false);
-  const [count, setCount] = useState(0);
-  // const [lastIndex, setLastIndex] = useState(0);
+
+  //new version of same data
+  const [newCardData, setNewCardData] = useState([]);
+  const [newCount, setNewCount] = useState(0);
 
   useEffect(() => {
-    // console.log(query);
-    if (query != "" && query === queryData) {
-      // console.log("clicked");
+    if (totalPages !== 0) {
+      let callback = (entries) => {
+        entries.map((entry) => {
+          if (entry.isIntersecting) {
+            document.querySelector(".load-more-btn").click();
+            console.log("called");
+          }
+        }
+        );
+      };
+      let options = {
+        root: document.querySelector("#container-container"),
+        rootMargin: "0px",
+        threshold: 1,
+      };
+
+      let observer = new IntersectionObserver(callback, options);
+
+      let target = document.querySelector(".observer-target");
+      if (target !== null && pageNumber < totalPages) {
+        observer.observe(target);
+      }
+    }
+  }, [observerTarget]);
+
+  useEffect(() => {
+    const loading = document.querySelector(".loading");
+    const button = document.querySelector(".load-more-btn");
+    if (loader) {
+      loading.style.setProperty("display", `block`);
+    } else {
+      loading.style.setProperty("display", `none`);
+      if (button) button.style.setProperty("display", `block`);
+    }
+  }, [loader]);
+
+  useEffect(() => {
+    if (query !== "" && query === queryData) {
       fetchResult(false);
     }
-    if (query != queryData && query != "") {
+    if (query !== queryData && query !== "") {
+      const button = document.querySelector(".load-more-btn");
+      if(button !== null) button.style.setProperty("display", `none`);
+      setLoader(true);
+      setCardData([]);
       fetchResult(true);
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   }, [query, pageNumber]);
 
   useEffect(() => {
-    const interval = setInterval(() => {
+    var interval;
+    if(firstData != ""){
+      interval = setInterval(() => {
       // fetchNewVersion();
-      // console.log("api called");
-    }, 10000);
+    }, 10000);}
     return () => clearInterval(interval);
   }, [firstData]);
+
+  useEffect(() => {
+    if (buttonClicked) {
+      const button = document.querySelector(".load-more-btn");
+      button.style.setProperty("display", `none`);
+      setCardData([]);
+      setLoader(true);
+      setButtonClicked(false);
+      setTimeout(() => {
+        setCardData(newCardData);
+        setCount(newCount);
+        setPageNumber(1);
+        setLoader(false);
+      }, 500);
+    }
+  }, [buttonClicked]);
 
   React.useEffect(() => {
     setCardCount(count);
   }, [cardData]);
 
-  // useEffect(() => {
-  // }, [firstData]);
-
-  const fetchNewVersion = () => {
-    if (firstData != "" && queryData != "") {
-      // fetch(
-      //   "https://newsapi.org/v2/everything?q=home&apiKey=5aa1253602fa4f2b985f8bb0909d788d&pageSize=10&page=1"
-      //   // +
-      //     // pageNumber
-      // )
-      //   .then((response) => response.json())
-      //   .then((result) => {
-      //     const data = result;
-      //     if (data.totalResults != 0 && firstData != data.articles[0].url) {
-      //       const position = window.pageYOffset;
-      //       if(position != 0) setNewContentVisibility("block");
-      //       if (buttonClicked || position == 0) {
-      //         setFirstData(data.articles[0].url);
-      //         setCardData(data.articles);
-      //         setQueryData(query);
-      //         window.scrollTo({ top: 0, behavior: "smooth" });
-      //         setButtonClicked(false);
-      //         setCount(data.totalResults);
-      //       }
-      //     }
-      //   })
-      const url = {
-        method: "GET",
-        url: "https://api.newscatcherapi.com/v2/search",
-        params: {
-          q: query,
-          lang: "en",
-          page: pageNumber,
-          page_size: 10,
-        },
-        headers: {
-          "x-api-key": "q4ru5xDKXVoHlJQlACMBoH17MjtBb48hM-k2VH_1t-A",
-        },
-      };
-      axios(url)
-        .then((result) => {
-          if (
-            result.data.total_hits != 0 &&
-            firstData != result.data.articles[0]._id
-          ) {
-            setFirstData(result.data.articles[0]._id);
-            setQueryData(query);
-            const position = window.pageYOffset;
-            if (position != 0) setNewContentVisibility("block");
-            if (buttonClicked || position == 0) {
-              setCount(result.data.total_hits);
-              setCardData(result.data.articles);
-              window.scrollTo({ top: 0, behavior: "smooth" });
-              setButtonClicked(false);
-            }
-          }
-        })
-        .catch((error) => {
-          setCardData(jsonObject.articles);
-          setCount(10);
-          // console.log(error);
-        });
-    }
-  };
-
   const fetchResult = async (isNew) => {
-    // await fetch("https://api.newscatcherapi.com/v2/search?q=" + query + "&lang=en&page-size=10&page=" + pageNumber,{headers: {
-    //   'x-api-key' : 'q4ru5xDKXVoHlJQlACMBoH17MjtBb48hM-k2VH_1t-A',
-    // }})
+    setLoader(true);
+    setNothingFound(false);
     const url = {
       method: "GET",
       url: "https://api.newscatcherapi.com/v2/search",
       params: {
         q: query,
         lang: "en",
-        page: pageNumber,
+        page: isNew ? 1 : pageNumber,
         page_size: 10,
       },
       headers: {
-        "x-api-key": "q4ru5xDKXVoHlJQlACMBoH17MjtBb48hM-k2VH_1t-A",
+        "x-api-key": "qL9K79p7jLJzSscZ6MM5_qWyjtyw0Pn_VKl_ROyLWwQ",
       },
     };
     await axios(url)
       .then((result) => {
-        if (result.data.total_hits != 0)
+        if (result.data.total_hits !== 0)
           setFirstData(result.data.articles[0]._id);
         setQueryData(query);
         setCount(result.data.total_hits);
-        // console.log(result.data.total_hits);
-        // console.log(result.data);
-        result.data.total_pages !== 0 ? isNew
-          ? setCardData(result.data.articles)
-          : setCardData([...cardData, ...result.data.articles]) : setCardData([]);
+        setNothingFound(result.data.total_hits === 0);
+        setTotalPages(result.data.total_pages);
+        isNew ? setPageNumber(1) : setPageNumber(pageNumber);
+        result.data.total_pages !== 0
+          ? isNew
+            ? setCardData(result.data.articles)
+            : setCardData([...cardData, ...result.data.articles])
+          : setCardData([]);
+        setLoader(false);
+        setTimeout(() => {
+          result.data.total_hits === 0
+            ? setObserverTarget(false)
+            : setObserverTarget(true);
+        }, 2000);
       })
-      // await fetch(
-      //   "https://newsapi.org/v2/everything?q=" +
-      //     query +
-      //     "&apiKey=fc0cb9d6c6c54c67bf03cd47e76cf813&pageSize=10&page=" +
-      //     pageNumber
-      // )
-      // .then((response) => response.json())
-      // .then((result) => {
-      //   const data = result;
-      //   console.log(data);
-      //   // console.log(data.totalResults);
-      //   if (data.totalResults != 0) setFirstData(data.articles[0].url);
-      //   setQueryData(query);
-      //   setCount(data.totalResults);
-      //   isNew
-      //     ? setCardData(data.articles)
-      //     : setCardData([...cardData, ...data.articles]);
-      // })
       .catch((error) => {
-        setCardData(jsonObject.articles);
-        setCardCount(0);
-        // console.log(error);
+        // setCardData(jsonObject.articles);
+        // setCardCount(1);
       });
-
-    // const response = await fetch(
-    //   "https://newsapi.org/v2/everything?q=" +
-    //     query +
-    //     "&apiKey=fc0cb9d6c6c54c67bf03cd47e76cf813&pageSize=10&page=" +
-    //     pageNumber
-    // );
-    // const data = await response.json();
-    // if (data.totalResults != 0) setFirstData(data.articles[0].url);
-    // setQueryData(query);
-    // setCount(data.totalResults);
-    // isNew
-    //   ? setCardData(data.articles)
-    //   : setCardData([...cardData, ...data.articles]);
   };
+
+  const fetchNewVersion = () => {
+    if (firstData !== "" && queryData !== "") {
+      const url = {
+        method: "GET",
+        url: "https://api.newscatcherapi.com/v2/search",
+        params: {
+          q: query,
+          lang: "en",
+          page: 1,
+          page_size: 10,
+        },
+        headers: {
+          "x-api-key": "qL9K79p7jLJzSscZ6MM5_qWyjtyw0Pn_VKl_ROyLWwQ",
+        },
+      };
+      axios(url)
+        .then((result) => {
+          if (
+            result.data.total_hits !== 0 &&
+            firstData !== result.data.articles[0]._id
+          ) {
+            setNewContentVisibility("block");
+            console.log("clicked");
+            setFirstData(result.data.articles[0]._id);
+            setQueryData(query);
+            setNewCount(result.data.total_hits);
+            setNewCardData(result.data.articles);
+            setTimeout(() => {
+              result.data.total_hits === 0
+                ? setObserverTarget(false)
+                : setObserverTarget(true);
+            }, 2000);
+          }
+        })
+        .catch((error) => {
+          // setCardData(jsonObject.articles);
+          // setCount(10);
+          // console.log(error);
+        });
+    }
+  };
+
+  const switchWithLoader = () => {
+    const button = document.querySelector(".load-more-btn");
+    button.style.setProperty("display", `none`);
+    if(pageNumber <= totalPages) setLoader(true);
+  };
+
   return (
-    <div>
+    <div className="container-container">
+      {nothingFound && <div className="no-result">NO Result Found!!</div>}
       <button
-        id="newContent"
+        id="newContentbtn"
         onClick={() => {
-          setNewContentVisibility("none");
           setButtonClicked(true);
+          setNewContentVisibility("none");
         }}
         style={{ display: newContentVisibility }}
       >
@@ -188,13 +217,23 @@ function CardContainer({ query, setCardCount }) {
           cardData.map((article, index) => {
             return <Card article={article} key={index} />;
           })}
+      </div>
+      {count !== 0 && observerTarget && <div className="observer-target"></div>}
+      <div className="loading"></div>
+      {count !== 0 && pageNumber !== totalPages && (
         <button
+          className="load-more-btn"
           onClick={() => {
+            switchWithLoader();
             setPageNumber(pageNumber + 1);
           }}
-        ></button>
-      </div>
-      {/* <div>{count === lastIndex - 1 && count != 0 ? "NO More News!" : ""}</div> */}
+        >
+          Load more
+        </button>
+      )}
+      {pageNumber === totalPages && count !== 0 && !loader && (
+        <div className="no-more-news">NO More News!</div>
+      )}
     </div>
   );
 }
