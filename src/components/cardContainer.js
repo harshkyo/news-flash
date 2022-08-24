@@ -34,7 +34,6 @@ function CardContainer({ query, setCardCount }) {
         entries.map((entry) => {
           if (entry.isIntersecting) {
             document.querySelector(".load-more-btn").click();
-            console.log("called");
           }
         }
         );
