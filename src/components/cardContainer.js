@@ -199,7 +199,7 @@ function CardContainer({ query, setCardCount }) {
   };
 
   return (
-    <div className="container-container">
+    <div id="container-container">
       {nothingFound && <div className="no-result">NO Result Found!!</div>}
       <button
         id="newContentbtn"
